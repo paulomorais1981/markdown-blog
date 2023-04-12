@@ -1,6 +1,6 @@
 // Define a function to fetch the Markdown file
 function fetchMarkdownFile() {
-  return fetch('blog-post.md')
+  return fetch('./blog-post.md')
     .then(response => response.text())
     .then(text => parseMarkdownFile(text));
 }
