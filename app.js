@@ -1,6 +1,6 @@
 // Define a function to fetch the Markdown file
 function fetchMarkdownFile() {
-  return fetch('./blog-post.md')
+  return fetch('https://raw.githubusercontent.com/paulomorais1981/paulomorais1981.github.io/main/blog-post.md')
     .then(response => response.text())
     .then(text => parseMarkdownFile(text));
 }
