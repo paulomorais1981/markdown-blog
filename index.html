@@ -3,6 +3,7 @@
   <head>
     <title>My Blog Post</title>
     <script src="https://cdn.jsdelivr.net/npm/markdown-it/dist/markdown-it.min.js"></script>
+    <script src="https://unpkg.com/gray-matter@4.0.2/umd/gray-matter.min.js"></script>
   </head>
   <body>
     <div id="content"></div>
@@ -14,17 +15,29 @@
           .then(text => parseMarkdownFile(text));
       }
 
-      // Define a function to parse the content of the Markdown file
+      // Define a function to parse the YAML front matter and content of the Markdown file
       function parseMarkdownFile(text) {
-        const markdown = new markdownit();
-        const html = markdown.render(text);
-        return html;
+        const { data, content } = window.grayMatter(text);
+        return { data, content };
       }
 
-      // Render the Markdown content
-      fetchMarkdownFile().then(html => {
-        document.getElementById('content').innerHTML = html;
-      });
+      // Define a function to render the Markdown content
+      function renderMarkdownContent({ data, content }) {
+        const markdown = new markdownit();
+        const html = markdown.render(content);
+        const title = data.title || 'Untitled';
+        const date = data.date || 'Unknown Date';
+        const author = data.author || 'Unknown Author';
+        const template = `
+          <h1>${title}</h1>
+          <p>${date} by ${author}</p>
+          ${html}
+        `;
+        document.getElementById('content').innerHTML = template;
+      }
+
+      // Fetch the Markdown file and render the content
+      fetchMarkdownFile().then(renderMarkdownContent);
     </script>
   </body>
 </html>
