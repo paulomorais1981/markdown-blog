@@ -1,43 +1,32 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>My Blog Post</title>
-    <script src="https://cdn.jsdelivr.net/npm/markdown-it/dist/markdown-it.min.js"></script>
-    <script src="https://unpkg.com/gray-matter@4.0.2/umd/gray-matter.min.js"></script>
+    <meta charset="UTF-8">
+    <title>Blog Post</title>
   </head>
   <body>
+    <div id="title"></div>
     <div id="content"></div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/js-yaml/4.1.1/js-yaml.min.js"></script>
     <script>
-      // Define a function to fetch the Markdown file
       function fetchMarkdownFile() {
-        return fetch('https://raw.githubusercontent.com/paulomorais1981/markdown-blog/main/blog-post.md')
+        const url = window.location.href.replace('.html', '.md');
+        return fetch(url)
           .then(response => response.text())
           .then(text => parseMarkdownFile(text));
       }
 
-      // Define a function to parse the YAML front matter and content of the Markdown file
       function parseMarkdownFile(text) {
-        const { data, content } = window.grayMatter(text);
-        return { data, content };
+        const parts = text.split('---');
+        const frontmatter = YAML.load(parts[1]);
+        const content = parts.slice(2).join('---');
+
+        document.getElementById('title').innerHTML = frontmatter.title;
+        document.getElementById('content').innerHTML = content;
       }
 
-      // Define a function to render the Markdown content
-      function renderMarkdownContent({ data, content }) {
-        const markdown = new markdownit();
-        const html = markdown.render(content);
-        const title = data.title || 'Untitled';
-        const date = data.date || 'Unknown Date';
-        const author = data.author || 'Unknown Author';
-        const template = `
-          <h1>${title}</h1>
-          <p>${date} by ${author}</p>
-          ${html}
-        `;
-        document.getElementById('content').innerHTML = template;
-      }
-
-      // Fetch the Markdown file and render the content
-      fetchMarkdownFile().then(renderMarkdownContent);
+      fetchMarkdownFile();
     </script>
   </body>
 </html>
