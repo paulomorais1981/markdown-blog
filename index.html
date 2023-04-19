@@ -1,45 +1,73 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <title>My Blog Post</title>
-    <script src="https://cdn.jsdelivr.net/npm/markdown-it/dist/markdown-it.min.js"></script>
-  </head>
-  <body>
-    <div id="content"></div>
-    <script>
-      // Define a function to fetch the Markdown file
-      function fetchMarkdownFile() {
-        return fetch('path/to/my-blog-post.md')
-          .then(response => response.text())
-          .then(text => parseMarkdownFile(text));
-      }
+<head>
+  <meta charset="UTF-8">
+  <title>Blog Post</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/showdown/1.9.1/showdown.min.js"></script>
+  <style>
+    /* Define some basic styles for the blog post */
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f5f5f5;
+    }
+    .post {
+      max-width: 800px;
+      margin: 0 auto;
+      background-color: #fff;
+      padding: 20px;
+      box-shadow: 0px 0px 10px #ccc;
+    }
+    .post h1 {
+      font-size: 36px;
+      margin-top: 0;
+    }
+    .post h2 {
+      font-size: 24px;
+    }
+    .post h3 {
+      font-size: 20px;
+    }
+    .post p {
+      font-size: 16px;
+      line-height: 1.5;
+    }
+  </style>
+</head>
+<body>
+  <div class="post"></div>
 
-      // Define a function to parse the YAML front matter and content of the Markdown file
-      function parseMarkdownFile(text) {
-        const parts = text.split('---');
-        const frontMatter = parts[1].trim();
-        const content = parts.slice(2).join('---').trim();
-        const data = YAML.parse(frontMatter);
-        return { data, content };
-      }
+  <script>
+    // Define the path to your Markdown file
+    const path = "blog-post.md";
 
-      // Define a function to render the Markdown content
-      function renderMarkdownContent({ data, content }) {
-        const markdown = new markdownit();
-        const html = markdown.render(content);
-        const title = data.title || 'Untitled';
-        const date = data.date || 'Unknown Date';
-        const author = data.author || 'Unknown Author';
-        const template = `
-          <h1>${title}</h1>
-          <p>${date} by ${author}</p>
-          ${html}
+    // Fetch the Markdown file
+    fetch(path)
+      .then(response => response.text())
+      .then(text => {
+        // Split the text into YAML front matter and Markdown content
+        const [frontMatter, markdown] = text.split("---\n").slice(1);
+
+        // Parse the YAML front matter into a JavaScript object
+        const frontMatterObj = yaml.load(frontMatter);
+
+        // Convert the Markdown to HTML using Showdown
+        const converter = new showdown.Converter();
+        const html = converter.makeHtml(markdown);
+
+        // Create the blog post HTML
+        const postHtml = `
+          <div class="post">
+            <h1>${frontMatterObj.title}</h1>
+            <p>${frontMatterObj.date}</p>
+            ${html}
+          </div>
         `;
-        document.getElementById('content').innerHTML = template;
-      }
 
-      // Fetch the Markdown file and render the content
-      fetchMarkdownFile().then(renderMarkdownContent);
-    </script>
-  </body>
+        // Add the blog post HTML to the DOM
+        document.querySelector(".post").innerHTML = postHtml;
+      });
+  </script>
+</body>
 </html>
